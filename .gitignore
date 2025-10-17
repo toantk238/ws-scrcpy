@@ -2,3 +2,7 @@
 /dist
 /build
 /.idea
+.envrc
+*.log
+*.bin
+*.csv

@@ -105,6 +105,12 @@ body.list #device_list_menu {
     height: 1em;
 }
 
+#devices .device-wifi-ipaddr {
+    font-size: 100%;
+    color: var(--url-color);
+    margin-left: 0.2em;
+}
+
 #devices .device.active .device-state {
     background-color: green;
 }

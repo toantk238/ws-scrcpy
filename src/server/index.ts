@@ -66,7 +66,7 @@ async function loadApplModules() {
 
     // Hack to reduce log-level of appium libs
     const { default: npmlog } = await import('npmlog');
-    npmlog.level = 'warn';
+    npmlog.level = 'debug';
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (global as any)._global_npmlog = npmlog;
 

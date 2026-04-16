@@ -45,6 +45,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
             state,
             interfaces: [],
             pid: -1,
+            wifiIpAddr: '',
             'wifi.interface': '',
             'ro.build.version.release': '',
             'ro.build.version.sdk': '',
@@ -123,6 +124,15 @@ export class Device extends TypedEmitter<DeviceEvents> {
                 resolve(output);
             });
         });
+    }
+
+    public async getWifiIpAddress(): Promise<string | undefined> {
+        if (!this.connected) {
+            return;
+        }
+        const command = `ip -f inet addr show wlan0 | grep 'inet ' | cut -d ' ' -f 6 | cut -d / -f 1`;
+        const output = await this.runShellCommandAdbKit(command);
+        return output || undefined;
     }
 
     public async runShellCommandAdbKit(command: string): Promise<string> {
@@ -330,6 +340,13 @@ export class Device extends TypedEmitter<DeviceEvents> {
             const netIntPromise = this.updateInterfaces().then((interfaces) => {
                 return !!interfaces.length;
             });
+            const wifiIpPromise = this.getWifiIpAddress().then((wifiIp) => {
+                if (wifiIp && this.descriptor.wifiIpAddr !== wifiIp) {
+                    this.descriptor.wifiIpAddr = wifiIp;
+                    this.emitUpdate();
+                }
+                return !!wifiIp;
+            });
             let pidPromise: Promise<number | undefined>;
             if (this.spawnServer) {
                 pidPromise = this.startServer();
@@ -339,7 +356,7 @@ export class Device extends TypedEmitter<DeviceEvents> {
             const serverPromise = pidPromise.then(() => {
                 return !(this.descriptor.pid === -1 && this.spawnServer);
             });
-            Promise.all([propsPromise, netIntPromise, serverPromise])
+            Promise.all([propsPromise, netIntPromise, serverPromise, wifiIpPromise])
                 .then((results) => {
                     this.updateTimeoutId = undefined;
                     const failedCount = results.filter((result) => !result).length;

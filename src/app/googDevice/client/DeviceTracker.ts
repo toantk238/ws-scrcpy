@@ -187,6 +187,7 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
                     <div class="sdk-version">${device['ro.build.version.sdk']}</div>
                 </div>
                 <div class="device-state" title="State: ${device.state}"></div>
+                <div class="device-wifi-ipaddr">${device.wifiIpAddr}</div>
             </div>
             <div id="${servicesId}" class="services"></div>
         </div>`.content;

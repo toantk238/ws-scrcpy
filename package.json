@@ -8,7 +8,7 @@
     "dist:prod": "webpack --config webpack/ws-scrcpy.prod.ts --stats-error-details",
     "dist": "npm run dist:prod",
     "start": "npm run dist && cd dist && npm start",
-    "script:dist:start": "node ./index.js",
+    "script:dist:start": "node ./dist/index.js",
     "lint": "eslint src/ --ext .ts",
     "format": "eslint src/ --fix --ext .ts",
     "test": "echo \"Error: no test specified\" && exit 1"

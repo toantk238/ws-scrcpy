@@ -38,7 +38,8 @@ export class DeviceTracker extends Mw {
                     this.adtHandlers.set(adt, handler);
                     adt.on('device', handler);
                 });
-                const allDevices = this.adts.flatMap((adt) => adt.getDevices());
+                const allDevices: GoogDeviceDescriptor[] = [];
+                this.adts.forEach((adt: ControlCenter) => allDevices.push(...adt.getDevices()));
                 this.buildAndSendMessage(allDevices);
             })
             .catch((error: Error) => {

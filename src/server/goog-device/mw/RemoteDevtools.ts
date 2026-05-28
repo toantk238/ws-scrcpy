@@ -3,6 +3,7 @@ import { Mw, RequestParameters } from '../../mw/Mw';
 import { RemoteDevtoolsCommand } from '../../../types/RemoteDevtoolsCommand';
 import { AdbUtils } from '../AdbUtils';
 import { ACTION } from '../../../common/Action';
+import { ControlCenter } from '../services/ControlCenter';
 
 export class RemoteDevtools extends Mw {
     public static readonly TAG = 'RemoteDevtools';
@@ -41,7 +42,10 @@ export class RemoteDevtools extends Mw {
         const command = data.command;
         switch (command) {
             case RemoteDevtoolsCommand.LIST_DEVTOOLS: {
-                AdbUtils.getRemoteDevtoolsInfo(this.host, this.udid)
+                const resolved = ControlCenter.resolveSerial(this.udid);
+                const rawUdid = resolved?.rawSerial ?? this.udid;
+                const adbServer = resolved?.adbServer;
+                AdbUtils.getRemoteDevtoolsInfo(this.host, rawUdid, adbServer)
                     .then((list) => {
                         this.ws.send(
                             JSON.stringify({

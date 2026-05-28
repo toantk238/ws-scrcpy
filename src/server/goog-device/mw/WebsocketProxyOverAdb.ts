@@ -3,6 +3,7 @@ import { AdbUtils } from '../AdbUtils';
 import WS from 'ws';
 import { RequestParameters } from '../../mw/Mw';
 import { ACTION } from '../../../common/Action';
+import { ControlCenter } from '../services/ControlCenter';
 
 export class WebsocketProxyOverAdb extends WebsocketProxy {
     public static processRequest(ws: WS, params: RequestParameters): WebsocketProxy | undefined {
@@ -47,8 +48,13 @@ export class WebsocketProxyOverAdb extends WebsocketProxy {
     }
 
     public static createProxyOverAdb(ws: WS, udid: string, remote: string, path?: string | null): WebsocketProxy {
+        const resolved = ControlCenter.resolveSerial(udid);
+        if (!resolved) {
+            ws.close(4003, `[${WebsocketProxyOverAdb.TAG}] Unknown device "${udid}"`);
+            return new WebsocketProxy(ws);
+        }
         const service = new WebsocketProxy(ws);
-        AdbUtils.forward(udid, remote)
+        AdbUtils.forward(resolved.rawSerial, remote, resolved.adbServer)
             .then((port) => {
                 return service.init(`ws://127.0.0.1:${port}${path ? path : ''}`);
             })

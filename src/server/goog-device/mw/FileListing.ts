@@ -5,6 +5,7 @@ import Protocol from '@dead50f7/adbkit/lib/adb/protocol';
 import { Multiplexer } from '../../../packages/multiplexer/Multiplexer';
 import { ChannelCode } from '../../../common/ChannelCode';
 import { FilePushReader } from '../filePush/FilePushReader';
+import { ControlCenter } from '../services/ControlCenter';
 
 export class FileListing extends Mw {
     public static readonly TAG = 'FileListing';
@@ -70,15 +71,18 @@ export class FileListing extends Mw {
     }
 
     private static async handle(cmd: string, serial: string, pathString: string, channel: Multiplexer): Promise<void> {
+        const resolved = ControlCenter.resolveSerial(serial);
+        const rawSerial = resolved?.rawSerial ?? serial;
+        const adbServer = resolved?.adbServer;
         try {
             if (cmd === Protocol.STAT) {
-                return AdbUtils.pipeStatToStream(serial, pathString, channel);
+                return AdbUtils.pipeStatToStream(rawSerial, pathString, channel, adbServer);
             }
             if (cmd === Protocol.LIST) {
-                return AdbUtils.pipeReadDirToStream(serial, pathString, channel);
+                return AdbUtils.pipeReadDirToStream(rawSerial, pathString, channel, adbServer);
             }
             if (cmd === Protocol.RECV) {
-                return AdbUtils.pipePullFileToStream(serial, pathString, channel);
+                return AdbUtils.pipePullFileToStream(rawSerial, pathString, channel, adbServer);
             }
         } catch (error: any) {
             FileListing.sendError(error?.message, channel);

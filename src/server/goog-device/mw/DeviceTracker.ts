@@ -12,8 +12,8 @@ import { ChannelCode } from '../../../common/ChannelCode';
 export class DeviceTracker extends Mw {
     public static readonly TAG = 'DeviceTracker';
     public static readonly type = 'android';
-    private adt: ControlCenter = ControlCenter.getInstance();
-    private readonly id: string;
+    private adts: ControlCenter[] = ControlCenter.getAllInstances();
+    private adtHandlers: Map<ControlCenter, (device: GoogDeviceDescriptor) => void> = new Map();
 
     public static processChannel(ws: Multiplexer, code: string): Mw | undefined {
         if (code !== ChannelCode.GTRC) {
@@ -31,44 +31,47 @@ export class DeviceTracker extends Mw {
 
     constructor(ws: WS | Multiplexer) {
         super(ws);
-
-        this.id = this.adt.getId();
-        this.adt
-            .init()
+        Promise.all(this.adts.map((adt) => adt.init()))
             .then(() => {
-                this.adt.on('device', this.sendDeviceMessage);
-                this.buildAndSendMessage(this.adt.getDevices());
+                this.adts.forEach((adt) => {
+                    const handler = (device: GoogDeviceDescriptor) => this.sendDeviceMessage(adt, device);
+                    this.adtHandlers.set(adt, handler);
+                    adt.on('device', handler);
+                });
+                const allDevices = this.adts.flatMap((adt) => adt.getDevices());
+                this.buildAndSendMessage(allDevices);
             })
             .catch((error: Error) => {
                 console.error(`[${DeviceTracker.TAG}] Error: ${error.message}`);
             });
     }
 
-    private sendDeviceMessage = (device: GoogDeviceDescriptor): void => {
+    private sendDeviceMessage = (adt: ControlCenter, device: GoogDeviceDescriptor): void => {
         const data: DeviceTrackerEvent<GoogDeviceDescriptor> = {
             device,
-            id: this.id,
-            name: this.adt.getName(),
+            id: adt.getId(),
+            name: adt.getName(),
         };
         this.sendMessage({
-            id: -1,
-            type: 'device',
+            id: 0,
+            type: 'deviceevent',
             data,
         });
     };
 
-    private buildAndSendMessage = (list: GoogDeviceDescriptor[]): void => {
+    private buildAndSendMessage(devices: GoogDeviceDescriptor[]): void {
+        const firstAdt = this.adts[0];
         const data: DeviceTrackerEventList<GoogDeviceDescriptor> = {
-            list,
-            id: this.id,
-            name: this.adt.getName(),
+            list: devices,
+            id: firstAdt?.getId() ?? '',
+            name: firstAdt?.getName() ?? '',
         };
         this.sendMessage({
-            id: -1,
+            id: 0,
             type: 'devicelist',
             data,
         });
-    };
+    }
 
     protected onSocketMessage(event: WS.MessageEvent): void {
         let command: ControlCenterCommand;
@@ -78,13 +81,20 @@ export class DeviceTracker extends Mw {
             console.error(`[${DeviceTracker.TAG}], Received message: ${event.data}. Error: ${error?.message}`);
             return;
         }
-        this.adt.runCommand(command).catch((e) => {
+        const udid = command.getUdid();
+        const colonIdx = udid.indexOf(':');
+        const label = colonIdx !== -1 ? udid.substring(0, colonIdx) : this.adts[0]?.adbServer.label ?? '';
+        const adt = ControlCenter.getInstance(label);
+        adt?.runCommand(command).catch((e: Error) => {
             console.error(`[${DeviceTracker.TAG}], Received message: ${event.data}. Error: ${e.message}`);
         });
     }
 
     public release(): void {
         super.release();
-        this.adt.off('device', this.sendDeviceMessage);
+        this.adtHandlers.forEach((handler, adt) => {
+            adt.off('device', handler);
+        });
+        this.adtHandlers.clear();
     }
 }

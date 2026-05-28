@@ -7,6 +7,7 @@ import { TypedEmitter } from '../../common/TypedEmitter';
 import GoogDeviceDescriptor from '../../types/GoogDeviceDescriptor';
 import { ScrcpyServer } from './ScrcpyServer';
 import { Properties } from './Properties';
+import { AdbServerConfig } from '../../types/Configuration';
 import Timeout = NodeJS.Timeout;
 
 enum PID_DETECTION {
@@ -37,11 +38,11 @@ export class Device extends TypedEmitter<DeviceEvents> {
     public readonly TAG: string;
     public readonly descriptor: GoogDeviceDescriptor;
 
-    constructor(public readonly udid: string, state: string) {
+    constructor(public readonly udid: string, state: string, public readonly adbServer: AdbServerConfig) {
         super();
         this.TAG = `[${udid}]`;
         this.descriptor = {
-            udid,
+            udid: `${adbServer.label}:${udid}`,
             state,
             interfaces: [],
             pid: -1,
@@ -53,9 +54,14 @@ export class Device extends TypedEmitter<DeviceEvents> {
             'ro.product.model': '',
             'ro.product.cpu.abi': '',
             'last.update.timestamp': 0,
+            adbServerLabel: adbServer.label,
         };
-        this.client = AdbExtended.createClient();
+        this.client = AdbExtended.createClient({ host: adbServer.host, port: adbServer.port });
         this.setState(state);
+    }
+
+    public get namespacedUdid(): string {
+        return `${this.adbServer.label}:${this.udid}`;
     }
 
     public setState(state: string): void {
@@ -101,7 +107,16 @@ export class Device extends TypedEmitter<DeviceEvents> {
     public async runShellCommandAdb(command: string): Promise<string> {
         return new Promise<string>((resolve, reject) => {
             const cmd = 'adb';
-            const args = ['-s', `${this.udid}`, 'shell', command];
+            const args = [
+                '-H',
+                this.adbServer.host ?? '127.0.0.1',
+                '-P',
+                String(this.adbServer.port ?? 5037),
+                '-s',
+                this.udid,
+                'shell',
+                command,
+            ];
             const adb = spawn(cmd, args, { stdio: ['ignore', 'pipe', 'pipe'] });
             let output = '';
 

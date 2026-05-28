@@ -60,9 +60,13 @@ export class FileListing extends Mw {
                     console.error(`[${FileListing.TAG}]`, error.message);
                 });
                 break;
-            case Protocol.SEND:
-                FilePushReader.handle(serial, channel);
+            case Protocol.SEND: {
+                const resolved = ControlCenter.resolveSerial(serial);
+                const rawSerial = resolved?.rawSerial ?? serial;
+                const adbServer = resolved?.adbServer;
+                FilePushReader.handle(rawSerial, channel, adbServer);
                 break;
+            }
             default:
                 console.error(`[${FileListing.TAG}]`, `Invalid message. Wrong command (${cmd})`);
                 channel.close(4001, `Invalid message. Wrong command (${cmd})`);

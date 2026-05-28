@@ -4,6 +4,7 @@ import { FilePushResponseStatus } from '../../../app/googDevice/filePush/FilePus
 import PushTransfer from '@dead50f7/adbkit/lib/adb/sync/pushtransfer';
 import { ReadStream } from './ReadStream';
 import { AdbExtended } from '../adb';
+import { AdbServerConfig } from '../../../types/Configuration';
 
 enum State {
     INITIAL,
@@ -18,8 +19,8 @@ export class FilePushReader {
     private static fileId = 1;
     private static maxId = 4294967295; // 2^32 - 1
 
-    public static handle(serial: string, channel: WebSocket): FilePushReader {
-        return new FilePushReader(serial, channel);
+    public static handle(serial: string, channel: WebSocket, adbServer?: AdbServerConfig): FilePushReader {
+        return new FilePushReader(serial, channel, adbServer);
     }
 
     public static getNextId(): number {
@@ -47,7 +48,11 @@ export class FilePushReader {
     private createStreamPromiseMap: Map<number, Promise<void>> = new Map();
     private disposed = false;
 
-    constructor(private readonly serial: string, private readonly channel: WebSocket) {
+    constructor(
+        private readonly serial: string,
+        private readonly channel: WebSocket,
+        private readonly adbServer?: AdbServerConfig,
+    ) {
         channel.addEventListener('message', this.onMessage);
         channel.addEventListener('close', this.onClose);
     }
@@ -190,7 +195,7 @@ export class FilePushReader {
         } as ReadableOptions; // FIXME: incorrect type in @type/node@12. fixed in @type/node@16
         this.readStream = new ReadStream(this.fileName, opts);
         this.readStream.push(chunk);
-        const client = AdbExtended.createClient();
+        const client = AdbExtended.createClient({ host: this.adbServer?.host, port: this.adbServer?.port });
         this.pushTransfer = await client.push(this.serial, this.readStream, this.fileName);
         client.on('error', (error: Error) => {
             console.error(`Client error (${this.serial} | ${this.fileName}):`, error.message);

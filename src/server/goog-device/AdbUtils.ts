@@ -42,7 +42,7 @@ export class AdbUtils {
         pathString: string,
         adbServer?: AdbServerConfig,
     ): Promise<PushTransfer> {
-        const client = AdbExtended.createClient(adbServer ?? {});
+        const client = AdbExtended.createClient(adbServer ? { host: adbServer.host, port: adbServer.port } : {});
         const transfer = await client.push(serial, stream, pathString);
         client.on('error', (error: Error) => {
             transfer.emit('error', error);
@@ -58,7 +58,7 @@ export class AdbUtils {
         adbServer?: AdbServerConfig,
     ): Promise<Stats> {
         if (!stats || (stats.isSymbolicLink() && pathString.endsWith('/'))) {
-            const client = AdbExtended.createClient(adbServer ?? {});
+            const client = AdbExtended.createClient(adbServer ? { host: adbServer.host, port: adbServer.port } : {});
             stats = await client.stat(serial, pathString);
         }
         if (stats.isSymbolicLink()) {
@@ -88,7 +88,7 @@ export class AdbUtils {
     }
 
     public static async readdir(serial: string, pathString: string, adbServer?: AdbServerConfig): Promise<FileStats[]> {
-        const client = AdbExtended.createClient(adbServer ?? {});
+        const client = AdbExtended.createClient(adbServer ? { host: adbServer.host, port: adbServer.port } : {});
         const list = await client.readdir(serial, pathString);
         const all = list.map(async (entry) => {
             if (entry.isSymbolicLink()) {
@@ -106,7 +106,7 @@ export class AdbUtils {
         pathString: string,
         adbServer?: AdbServerConfig,
     ): Promise<PullTransfer> {
-        const client = AdbExtended.createClient(adbServer ?? {});
+        const client = AdbExtended.createClient(adbServer ? { host: adbServer.host, port: adbServer.port } : {});
         const transfer = await client.pull(serial, pathString);
 
         transfer.on('progress', function (stats) {
@@ -131,7 +131,7 @@ export class AdbUtils {
         stream: Multiplexer,
         adbServer?: AdbServerConfig,
     ): Promise<void> {
-        const client = AdbExtended.createClient(adbServer ?? {});
+        const client = AdbExtended.createClient(adbServer ? { host: adbServer.host, port: adbServer.port } : {});
         return client.pipeStat(serial, pathString, stream);
     }
 
@@ -141,7 +141,7 @@ export class AdbUtils {
         stream: Multiplexer,
         adbServer?: AdbServerConfig,
     ): Promise<void> {
-        const client = AdbExtended.createClient(adbServer ?? {});
+        const client = AdbExtended.createClient(adbServer ? { host: adbServer.host, port: adbServer.port } : {});
         return client.pipeReadDir(serial, pathString, stream);
     }
 
@@ -151,7 +151,7 @@ export class AdbUtils {
         stream: Multiplexer,
         adbServer?: AdbServerConfig,
     ): Promise<void> {
-        const client = AdbExtended.createClient(adbServer ?? {});
+        const client = AdbExtended.createClient(adbServer ? { host: adbServer.host, port: adbServer.port } : {});
         const transfer = await client.pull(serial, pathString);
         transfer.on('data', (data) => {
             stream.send(Buffer.concat([Buffer.from(Protocol.DATA, 'ascii'), data]));
@@ -169,7 +169,7 @@ export class AdbUtils {
     }
 
     public static async forward(serial: string, remote: string, adbServer?: AdbServerConfig): Promise<number> {
-        const client = AdbExtended.createClient(adbServer ?? {});
+        const client = AdbExtended.createClient(adbServer ? { host: adbServer.host, port: adbServer.port } : {});
         const forwards = await client.listForwards(serial);
         const forward = forwards.find((item: Forward) => {
             return item.remote === remote && item.local.startsWith('tcp:') && item.serial === serial;
@@ -185,7 +185,7 @@ export class AdbUtils {
     }
 
     public static async getDevtoolsRemoteList(serial: string, adbServer?: AdbServerConfig): Promise<string[]> {
-        const client = AdbExtended.createClient(adbServer ?? {});
+        const client = AdbExtended.createClient(adbServer ? { host: adbServer.host, port: adbServer.port } : {});
         const stream = await client.shell(serial, 'cat /proc/net/unix');
         const buffer = await AdbExtended.util.readAll(stream);
         const lines = buffer
@@ -217,7 +217,7 @@ export class AdbUtils {
         url: string,
         adbServer?: AdbServerConfig,
     ): Promise<IncomingMessage> {
-        const client = AdbExtended.createClient(adbServer ?? {});
+        const client = AdbExtended.createClient(adbServer ? { host: adbServer.host, port: adbServer.port } : {});
         const socket = await client.openLocal(serial, `localabstract:${unixSocketName}`);
         const request = new (http.ClientRequest as any)(url, {
             createConnection: () => {
@@ -399,7 +399,7 @@ export class AdbUtils {
     }
 
     public static async getDeviceName(serial: string, adbServer?: AdbServerConfig): Promise<string> {
-        const client = AdbExtended.createClient(adbServer ?? {});
+        const client = AdbExtended.createClient(adbServer ? { host: adbServer.host, port: adbServer.port } : {});
         const props = await client.getProperties(serial);
         return props['ro.product.model'] || 'Unknown device';
     }

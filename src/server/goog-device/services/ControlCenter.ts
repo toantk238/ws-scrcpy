@@ -11,13 +11,14 @@ import { ControlCenterCommand } from '../../../common/ControlCenterCommand';
 import * as os from 'os';
 import * as crypto from 'crypto';
 import { DeviceState } from '../../../common/DeviceState';
+import { AdbServerConfig } from '../../../types/Configuration';
 
 export class ControlCenter extends BaseControlCenter<GoogDeviceDescriptor> implements Service {
     private static readonly defaultWaitAfterError = 1000;
-    private static instance?: ControlCenter;
+    private static instances = new Map<string, ControlCenter>();
 
     private initialized = false;
-    private client: AdbKitClient = AdbExtended.createClient();
+    private client: AdbKitClient;
     private tracker?: Tracker;
     private waitAfterError = 1000;
     private restartTimeoutId?: Timeout;
@@ -25,21 +26,41 @@ export class ControlCenter extends BaseControlCenter<GoogDeviceDescriptor> imple
     private descriptors: Map<string, GoogDeviceDescriptor> = new Map();
     private readonly id: string;
 
-    protected constructor() {
+    protected constructor(public readonly adbServer: AdbServerConfig) {
         super();
-        const idString = `goog|${os.hostname()}|${os.uptime()}`;
+        this.client = AdbExtended.createClient({ host: adbServer.host, port: adbServer.port });
+        const idString = `goog|${adbServer.label}|${os.hostname()}|${os.uptime()}`;
         this.id = crypto.createHash('md5').update(idString).digest('hex');
     }
 
-    public static getInstance(): ControlCenter {
-        if (!this.instance) {
-            this.instance = new ControlCenter();
-        }
-        return this.instance;
+    public static getInstance(label: string): ControlCenter | undefined {
+        return this.instances.get(label);
     }
 
-    public static hasInstance(): boolean {
-        return !!ControlCenter.instance;
+    public static register(adbServer: AdbServerConfig): ControlCenter {
+        if (!this.instances.has(adbServer.label)) {
+            this.instances.set(adbServer.label, new ControlCenter(adbServer));
+        }
+        return this.instances.get(adbServer.label)!;
+    }
+
+    public static getAllInstances(): ControlCenter[] {
+        return Array.from(this.instances.values());
+    }
+
+    public static hasInstance(label?: string): boolean {
+        if (label) return this.instances.has(label);
+        return this.instances.size > 0;
+    }
+
+    public static resolveSerial(namespacedUdid: string): { rawSerial: string; adbServer: AdbServerConfig } | undefined {
+        const colonIdx = namespacedUdid.indexOf(':');
+        if (colonIdx === -1) return undefined;
+        const label = namespacedUdid.substring(0, colonIdx);
+        const rawSerial = namespacedUdid.substring(colonIdx + 1);
+        const instance = ControlCenter.instances.get(label);
+        if (!instance) return undefined;
+        return { rawSerial, adbServer: instance.adbServer };
     }
 
     private restartTracker = (): void => {
@@ -77,19 +98,20 @@ export class ControlCenter extends BaseControlCenter<GoogDeviceDescriptor> imple
     };
 
     private onDeviceUpdate = (device: Device): void => {
-        const { udid, descriptor } = device;
-        this.descriptors.set(udid, descriptor);
+        const { namespacedUdid, descriptor } = device;
+        this.descriptors.set(namespacedUdid, descriptor);
         this.emit('device', descriptor);
     };
 
-    private handleConnected(udid: string, state: string): void {
-        let device = this.deviceMap.get(udid);
-        if (device) {
-            device.setState(state);
-        } else {
-            device = new Device(udid, state);
+    private handleConnected(rawUdid: string, state: string): void {
+        const namespacedUdid = `${this.adbServer.label}:${rawUdid}`;
+        let device = this.deviceMap.get(namespacedUdid);
+        if (!device) {
+            device = new Device(rawUdid, state, this.adbServer);
             device.on('update', this.onDeviceUpdate);
-            this.deviceMap.set(udid, device);
+            this.deviceMap.set(namespacedUdid, device);
+        } else {
+            device.setState(state);
         }
     }
 
@@ -142,7 +164,7 @@ export class ControlCenter extends BaseControlCenter<GoogDeviceDescriptor> imple
     }
 
     public getName(): string {
-        return `aDevice Tracker [${os.hostname()}]`;
+        return `Android Tracker [${this.adbServer.label}@${os.hostname()}]`;
     }
 
     public start(): Promise<void> {

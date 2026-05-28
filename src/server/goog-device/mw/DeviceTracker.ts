@@ -14,6 +14,7 @@ export class DeviceTracker extends Mw {
     public static readonly type = 'android';
     private adts: ControlCenter[] = ControlCenter.getAllInstances();
     private adtHandlers: Map<ControlCenter, (device: GoogDeviceDescriptor) => void> = new Map();
+    private released = false;
 
     public static processChannel(ws: Multiplexer, code: string): Mw | undefined {
         if (code !== ChannelCode.GTRC) {
@@ -33,6 +34,7 @@ export class DeviceTracker extends Mw {
         super(ws);
         Promise.all(this.adts.map((adt) => adt.init()))
             .then(() => {
+                if (this.released) return;
                 this.adts.forEach((adt) => {
                     const handler = (device: GoogDeviceDescriptor) => this.sendDeviceMessage(adt, device);
                     this.adtHandlers.set(adt, handler);
@@ -92,6 +94,7 @@ export class DeviceTracker extends Mw {
     }
 
     public release(): void {
+        this.released = true;
         super.release();
         this.adtHandlers.forEach((handler, adt) => {
             adt.off('device', handler);

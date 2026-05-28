@@ -28,6 +28,14 @@ async function loadGoogModules() {
     const { DeviceTracker } = await import('./goog-device/mw/DeviceTracker');
     const { WebsocketProxyOverAdb } = await import('./goog-device/mw/WebsocketProxyOverAdb');
 
+    for (const adbServer of config.adbServers) {
+        const center = ControlCenter.register(adbServer);
+        runningServices.push(center);
+        center.start().catch((e: Error) => {
+            console.error(`Error: Failed to init "${center.getName()}". ${e.message}`);
+        });
+    }
+
     if (config.runLocalGoogTracker) {
         mw2List.push(DeviceTracker);
     }
@@ -35,8 +43,6 @@ async function loadGoogModules() {
     if (config.announceLocalGoogTracker) {
         HostTracker.registerLocalTracker(DeviceTracker);
     }
-
-    servicesToStart.push(ControlCenter);
 
     /// #if INCLUDE_ADB_SHELL
     const { RemoteShell } = await import('./goog-device/mw/RemoteShell');

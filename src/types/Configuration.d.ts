@@ -41,6 +41,7 @@ export interface AdbServerConfig {
     label: string;
     host?: string;
     port?: number;
+    scrcpyForwardPort?: number;
 }
 
 // The configuration file must contain a single object with this structure

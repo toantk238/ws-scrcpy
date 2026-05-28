@@ -20,15 +20,20 @@ server:
       keyPath: /Users/example/ssl/STAR_example_com.key
 
 # ADB server connections. Each entry starts one Android device tracker.
-# label: identifier used to namespace device serials (e.g. "lab-a:emulator-5554")
-# port:  ADB daemon port (default: 5037)
-# host:  ADB daemon host (default: 127.0.0.1)
+# label:             identifier used to namespace device serials (e.g. "lab-a:emulator-5554")
+# port:              ADB daemon port (default: 5037)
+# host:              ADB daemon host (default: 127.0.0.1)
+# scrcpyForwardPort: fixed local port for scrcpy stream forwarding (optional).
+#                    Required when ADB is accessed via SSH port-forwarding: set this to a
+#                    static port and add a matching SSH tunnel, e.g.:
+#                      ssh -L 5038:localhost:5037 -L 27184:localhost:27184 user@remote -N
 # If omitted, a single default server is used (127.0.0.1:5037 or ADB_HOST/ADB_PORT env vars).
 #adbServers:
-#  - label: "lab-a"
+#  - label: "local"
 #    port: 5037
-#  - label: "lab-b"
-#    port: 5038
+#  - label: "remote"
+#    port: 5038              # SSH-forwarded: local:5038 → remote:5037
+#    scrcpyForwardPort: 27184 # SSH-forwarded: local:27184 → remote:27184
 
 # Announce remote device trackers. The server doesn't check their availability.
 remoteHostList:

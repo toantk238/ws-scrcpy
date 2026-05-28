@@ -178,7 +178,7 @@ export class AdbUtils {
             const { local } = forward;
             return parseInt(local.split('tcp:')[1], 10);
         }
-        const port = await portfinder.getPortPromise();
+        const port = adbServer?.scrcpyForwardPort ?? (await portfinder.getPortPromise());
         const local = `tcp:${port}`;
         await client.forward(serial, local, remote);
         return port;

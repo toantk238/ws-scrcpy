@@ -8,6 +8,7 @@ import { XtermClientMessage, XtermServiceParameters } from '../../../types/Xterm
 import { ACTION } from '../../../common/Action';
 import { Multiplexer } from '../../../packages/multiplexer/Multiplexer';
 import { ChannelCode } from '../../../common/ChannelCode';
+import { ControlCenter } from '../services/ControlCenter';
 
 const OS_WINDOWS = os.platform() === 'win32';
 const USE_BINARY = !OS_WINDOWS;
@@ -48,7 +49,15 @@ export class RemoteShell extends Mw {
         const { cols = 80, rows = 24 } = params;
         const cwd = env.PWD || '/';
         const file = OS_WINDOWS ? 'adb.exe' : 'adb';
-        const term = pty.spawn(file, ['-s', params.udid, 'shell'], {
+        const resolved = ControlCenter.resolveSerial(params.udid);
+        const rawSerial = resolved?.rawSerial ?? params.udid;
+        const adbArgs: string[] = [];
+        if (resolved?.adbServer) {
+            adbArgs.push('-H', resolved.adbServer.host ?? '127.0.0.1');
+            adbArgs.push('-P', String(resolved.adbServer.port ?? 5037));
+        }
+        adbArgs.push('-s', rawSerial, 'shell');
+        const term = pty.spawn(file, adbArgs, {
             name: 'xterm-256color',
             cols,
             rows,

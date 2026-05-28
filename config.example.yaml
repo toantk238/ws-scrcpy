@@ -19,6 +19,17 @@ server:
       certPath: /Users/example/ssl/STAR_example_com.crt
       keyPath: /Users/example/ssl/STAR_example_com.key
 
+# ADB server connections. Each entry starts one Android device tracker.
+# label: identifier used to namespace device serials (e.g. "lab-a:emulator-5554")
+# port:  ADB daemon port (default: 5037)
+# host:  ADB daemon host (default: 127.0.0.1)
+# If omitted, a single default server is used (127.0.0.1:5037 or ADB_HOST/ADB_PORT env vars).
+#adbServers:
+#  - label: "lab-a"
+#    port: 5037
+#  - label: "lab-b"
+#    port: 5038
+
 # Announce remote device trackers. The server doesn't check their availability.
 remoteHostList:
   - useProxy: true   # optional, default: false

@@ -1,7 +1,7 @@
 import * as process from 'process';
 import * as fs from 'fs';
 import * as path from 'path';
-import { Configuration, HostItem, ServerItem } from '../types/Configuration';
+import { AdbServerConfig, Configuration, HostItem, ServerItem } from '../types/Configuration';
 import { EnvName } from './EnvName';
 import YAML from 'yaml';
 
@@ -32,6 +32,11 @@ export class Config {
                 port: DEFAULT_PORT,
             },
         ];
+        const defaultAdbServer: AdbServerConfig = {
+            label: 'default',
+            host: process.env.ADB_HOST || '127.0.0.1',
+            port: parseInt(process.env.ADB_PORT || '5037', 10),
+        };
         const defaultConfig: Required<Configuration> = {
             runGoogTracker,
             runApplTracker,
@@ -39,6 +44,7 @@ export class Config {
             announceApplTracker,
             server,
             remoteHostList: [],
+            adbServers: [defaultAdbServer],
         };
         const merged = Object.assign({}, defaultConfig, userConfig);
         merged.server = merged.server.map((item) => this.parseServerItem(item));
@@ -152,5 +158,9 @@ export class Config {
 
     public get servers(): ServerItem[] {
         return this.fullConfig.server;
+    }
+
+    public get adbServers(): AdbServerConfig[] {
+        return this.fullConfig.adbServers;
     }
 }

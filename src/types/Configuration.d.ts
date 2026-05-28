@@ -37,6 +37,12 @@ export interface ServerItem {
         | boolean;
 }
 
+export interface AdbServerConfig {
+    label: string;
+    host?: string;
+    port?: number;
+}
+
 // The configuration file must contain a single object with this structure
 export interface Configuration {
     server?: ServerItem[];
@@ -45,4 +51,5 @@ export interface Configuration {
     runGoogTracker?: boolean;
     announceGoogTracker?: boolean;
     remoteHostList?: HostsItem[];
+    adbServers?: AdbServerConfig[];
 }

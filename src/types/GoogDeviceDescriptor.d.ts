@@ -12,4 +12,5 @@ export default interface GoogDeviceDescriptor extends BaseDeviceDescriptor {
     pid: number;
     wifiIpAddr: string;
     'last.update.timestamp': number;
+    adbServerLabel: string;
 }

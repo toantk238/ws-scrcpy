@@ -177,6 +177,9 @@ body.list #device_list_menu {
     align-items: center;
     flex-wrap: wrap;
     gap: 6px;
+    border-top: 1px solid var(--card-border);
+    padding-top: 10px;
+    margin-top: 4px;
 }
 
 /* Each tool injects a .desc-block wrapper div */

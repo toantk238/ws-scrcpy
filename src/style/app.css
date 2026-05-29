@@ -21,6 +21,26 @@
     --progress-background-color: hsla(225, 100%, 50%, 0.2);
     --progress-background-error-color: hsla(0, 100%, 50%, 0.2);
     --font-size: 14px;
+    /* ── Card / UI redesign tokens ── */
+    --bg: #f1f5f9;
+    --card-bg: #ffffff;
+    --card-border: #e2e8f0;
+    --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+    --card-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.05);
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --text-muted: #94a3b8;
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --btn-secondary-bg: #f1f5f9;
+    --btn-secondary-text: #475569;
+    --btn-secondary-hover: #e2e8f0;
+    --status-online: #22c55e;
+    --status-offline: #ef4444;
+    --section-label: #94a3b8;
+    --section-border: #e2e8f0;
+    --font-ui: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'SF Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', monospace;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -48,6 +68,22 @@
         --button-border-color: hsl(213, 5%, 39%);
         --progress-background-color: hsla(225, 100%, 50%, 0.2);
         --progress-background-error-color: hsla(0, 100%, 50%, 0.2);
+        /* ── Card / UI redesign tokens (dark) ── */
+        --bg: #0f172a;
+        --card-bg: #1e293b;
+        --card-border: #334155;
+        --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        --card-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.4);
+        --text-primary: #e2e8f0;
+        --text-secondary: #94a3b8;
+        --text-muted: #64748b;
+        --accent: #3b82f6;
+        --accent-hover: #2563eb;
+        --btn-secondary-bg: #0f2338;
+        --btn-secondary-text: #94a3b8;
+        --btn-secondary-hover: #1e3a5c;
+        --section-label: #64748b;
+        --section-border: #1e293b;
     }
 }
 

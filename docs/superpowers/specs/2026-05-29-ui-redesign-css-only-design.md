@@ -120,8 +120,8 @@ Transforms from plain bold text into a clean section divider:
 - `.device-wifi-ipaddr`: `font-size: 10px; font-family: var(--font-mono); color: var(--text-muted)`
 
 ### Offline / Disconnected (`.device.not-active`)
-- `opacity: 0.5`
-- No action buttons shown (already the case in existing logic)
+- `opacity: 0.5` — the whole card fades, including any action buttons that may be present
+- `pointer-events: none` — prevents interaction while offline
 
 ### Action Buttons Row (`.services` / `.desc-block`)
 - `display: flex; align-items: center; gap: 6px; flex-wrap: wrap`

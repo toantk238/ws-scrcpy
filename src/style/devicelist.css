@@ -201,6 +201,29 @@ body.list #device_list_menu {
     display: none;
 }
 
+/* ── H264 Converter (MsePlayer) — highlighted as primary player ── */
+
+#devices .device-list div.desc-block[data-player-code-name="mse"] a {
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--btn-secondary-bg);
+    border: 1.5px solid var(--accent);
+    border-radius: 6px;
+    padding: 4px 12px;
+    text-decoration: none;
+    transition: background 0.12s ease, color 0.12s ease;
+    white-space: nowrap;
+    display: inline-block;
+}
+
+#devices .device-list div.desc-block[data-player-code-name="mse"] a:hover {
+    background: var(--accent);
+    color: #ffffff;
+    text-decoration: none;
+}
+
 /* ── Secondary action links (shell, devtools, files, etc.) ── */
 /* Tools inject <a> links — style them as buttons */
 

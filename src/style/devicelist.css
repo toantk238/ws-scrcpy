@@ -55,11 +55,13 @@ body.list #device_list_menu {
     font-size: var(--font-size);
 }
 
-/* tracker-block: anonymous div wrapping tracker-name + device cards per ADB server */
-#devices .device-list > div {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+/* Space between device cards — works regardless of DOM nesting */
+#devices .device-list div.device {
+    margin-bottom: 12px;
+}
+
+#devices .device-list div.device:last-child {
+    margin-bottom: 0;
 }
 
 /* ── Section header: one per ADB server (tracker-name element) ── */

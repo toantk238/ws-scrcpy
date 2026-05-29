@@ -1,8 +1,12 @@
+server:
+  - secure: false
+    port: 8000
+
 adbServers:
   - label: "local"
     host: "127.0.0.1"
     port: 5037
-  # - label: "macPro"
-  #   host: "127.0.0.1"
-  #   port: 5038
-  #   scrcpyForwardPort: 27184
+  - label: "macPro"
+    host: "127.0.0.1"
+    port: 5038
+    scrcpyForwardPort: 27184

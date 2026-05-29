@@ -1,6 +1,6 @@
 server:
   - secure: false
-    port: 8000
+    port: 8005
 
 adbServers:
   - label: "local"

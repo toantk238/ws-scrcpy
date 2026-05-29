@@ -8,3 +8,4 @@
 *.csv
 /svc.sh
 .superpowers/
+config.yaml

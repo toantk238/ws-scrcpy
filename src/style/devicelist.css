@@ -1,41 +1,36 @@
-:root {
-    --device-border-color: hsl(0, 0%, 82%);
-    --device-list-stripe-color: hsl(0, 0%, 96%);
-    --device-list-default-color: hsl(0, 0%, 100%);
-    --device-list-hover-color: hsl(218, 67%, 95%);
-}
+/* ─────────────────────────────────────────────────────────────────────────────
+   devicelist.css  —  card-based device list redesign (CSS-only, no HTML changes)
+   ───────────────────────────────────────────────────────────────────────────── */
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        --device-border-color: hsl(0, 0%, 32%);
-        --device-list-stripe-color: hsl(0, 0%, 16%);
-        --device-list-default-color: hsl(0, 0%, 14%);
-        --device-list-hover-color: hsl(218, 17%, 18%);
-    }
-}
-
+/* ── Body overrides for list mode ── */
 
 body.list {
     height: auto;
     width: auto;
     overflow: auto;
+    background-color: var(--bg);
 }
 
+/* ── Outer scroll container ── */
+
 #devices {
-    padding: 20px 0;
+    padding: 20px 24px;
     width: 100%;
     height: calc(100% - 40px);
     overflow-y: auto;
 }
 
+/* When device list is shown as an overlay on top of a stream */
 body.stream #devices {
-    background-color: var(--device-list-default-color);
-    opacity: .8;
+    background-color: var(--card-bg);
+    opacity: 0.9;
     position: absolute;
     top: 0;
     left: 0;
     z-index: 3;
 }
+
+/* ── Device-list menu button (hidden in list mode) ── */
 
 body.list #device_list_menu {
     display: none;
@@ -49,193 +44,269 @@ body.list #device_list_menu {
     z-index: 4;
 }
 
-#devices .device-list button {
+/* ── Device list container ── */
+
+#devices .device-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-family: var(--font-ui);
     font-size: var(--font-size);
-    color: var(--button-text-color);
 }
 
-#devices .device-list div.device:nth-child(2n+1){
-    background-color: var(--device-list-default-color);
+/* ── Section header: one per ADB server (tracker-name element) ── */
+
+#devices .tracker-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--section-label);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0 2px 8px;
+    margin-top: 20px;
+    margin-bottom: 2px;
+    border-bottom: 1px solid var(--section-border);
 }
 
-#devices .device-list div.device:nth-child(2n){
-    background-color: var(--device-list-stripe-color);
+#devices .tracker-name:first-child {
+    margin-top: 0;
 }
+
+/* ── Device card ── */
+
+#devices .device-list div.device {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    box-shadow: var(--card-shadow);
+    transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+#devices .device-list div.device:hover {
+    box-shadow: var(--card-shadow-hover);
+    border-color: var(--accent);
+}
+
+/* ── Device header row (name / serial / version / dot / IP) ── */
 
 #devices .device-header {
-    padding: 2px 0;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 0;
+    margin-bottom: 10px;
 }
 
 #devices .device-header div {
     display: inline-flex;
+    align-items: center;
 }
 
+/* Device name: manufacturer + model */
 #devices .device-name {
-    font-size: 120%;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-family: var(--font-ui);
 }
 
-#devices .device-model {
-    font-size: 110%;
-}
-
+/* Serial / UDID — keep monospace, push to far right */
 #devices .device-serial {
-    color: var(--url-color);
-    font-size: 80%;
-    margin-left: 6px;
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    margin-left: auto;
 }
 
+/* Android version */
 #devices .device-version {
-    font-size: 100%;
-    margin-left: 6px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-family: var(--font-ui);
     align-items: baseline;
+    gap: 3px;
 }
 
 #devices .device-version .sdk-version {
-    font-size: 75%;
-    color: var(--url-color);
-    margin-left: 0.2em;
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
 }
 
+/* Status dot */
 #devices .device-state {
-    border-radius: 25px;
-    background-color: red;
-    font-size: 80%;
-    margin-left: 6px;
-    width: 1em;
-    height: 1em;
-}
-
-#devices .device-wifi-ipaddr {
-    font-size: 100%;
-    color: var(--url-color);
-    margin-left: 0.2em;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--status-offline);
+    flex-shrink: 0;
+    margin-left: 0;
 }
 
 #devices .device.active .device-state {
-    background-color: green;
+    background-color: var(--status-online);
 }
 
-#devices .device-list {
-    position: relative;
-    bottom: 0;
-    left: 0;
-    width: 100%;
+/* Wi-Fi IP — monospace, muted */
+#devices .device-wifi-ipaddr {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
 }
 
-#devices .device-list {
-    border-spacing: 0;
-    border-collapse: collapse;
-    font-family: monospace;
-    font-size: var(--font-size);
+/* ── Offline/disconnected device — fade entire card ── */
+
+#devices .device-list .device.not-active {
+    opacity: 0.5;
+    pointer-events: none;
+    color: var(--text-muted);
 }
 
-#devices .device-list div.device {
-    padding: 5px 20px 5px;
+#devices .device-list .device.not-active a,
+#devices .device-list .device.not-active a:visited {
+    color: var(--text-muted);
 }
 
-#devices .device-list div.device:hover {
-    background-color: var(--device-list-hover-color)
+/* ── Services row (action buttons) ── */
+
+#devices .device-list div.device .services {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
 }
 
-#devices .device-list div.device select {
-    color: var(--text-color);
-    background-color: var(--main-bg-color);
-    margin-left: 0;
-    border: none;
-}
-
-#devices .device-list div.device:hover select {
-    background-color: var(--device-list-hover-color);;
-}
-
+/* Each tool injects a .desc-block wrapper div */
 #devices .device-list div.desc-block {
-    margin: .3em;
     display: inline-flex;
+    margin: 0;
 }
 
 #devices .device-list div.desc-block.hidden {
     display: none;
 }
 
-#devices .device-list div.desc-block.stream,
-#devices .device-list div.desc-block.server_pid,
-#devices .device-list div.desc-block.net_interface {
-    border: 1px solid var(--device-border-color);
-    border-radius: .3em;
-    overflow: hidden;
+/* ── Secondary action links (shell, devtools, files, etc.) ── */
+/* Tools inject <a> links — style them as buttons */
+
+#devices .device-list div.desc-block a {
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--btn-secondary-text);
+    background: var(--btn-secondary-bg);
+    border-radius: 6px;
+    padding: 5px 12px;
+    text-decoration: none;
+    transition: background 0.12s ease, color 0.12s ease;
+    white-space: nowrap;
+    display: inline-block;
+}
+
+#devices .device-list div.desc-block a:hover {
+    background: var(--btn-secondary-hover);
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
+#devices .device-list div.desc-block a:visited {
+    color: var(--btn-secondary-text);
+}
+
+/* ── Stream button (primary accent — configure/status stream) ── */
+/* The stream desc-block contains a <button> not an <a> */
+
+#devices .device-list div.desc-block.stream button.action-button {
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 600;
+    color: #ffffff;
+    background: var(--accent);
+    border: none;
+    border-radius: 6px;
+    padding: 5px 12px;
+    cursor: pointer;
+    transition: background 0.12s ease;
     white-space: nowrap;
 }
 
-#devices .device-list div.device div.desc-block.stream button.action-button {
-    color: var(--button-text-color);
+#devices .device-list div.desc-block.stream button.action-button:hover {
+    background: var(--accent-hover);
 }
 
-#devices .device-list div.desc-block button {
-    fill: var(--text-color)
+/* ── Server PID button (icon-only: kill / start server) ── */
+/* Stays minimal — SVG icon, no label */
+
+#devices .device-list div.desc-block.server_pid button.action-button {
+    font-family: var(--font-ui);
+    font-size: 12px;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 8px;
+    cursor: pointer;
+    color: var(--btn-secondary-text);
+    background: var(--btn-secondary-bg);
+    transition: background 0.12s ease, color 0.12s ease;
+    display: inline-flex;
+    align-items: center;
 }
 
-#devices .device-list div.desc-block button > span {
-    padding: 0 .5em;
-}
-
-#devices .device-list div.desc-block button > span,
-#devices .device-list div.desc-block button > svg {
-    vertical-align: middle;
+#devices .device-list div.desc-block.server_pid button.action-button:hover {
+    background: var(--btn-secondary-hover);
+    color: var(--text-primary);
 }
 
 #devices .device-list div.desc-block button > svg {
     width: var(--font-size);
     height: var(--font-size);
+    vertical-align: middle;
 }
 
 #devices .device-list div.desc-block button > svg > path {
-    fill: var(--text-color);
+    fill: var(--btn-secondary-text);
 }
 
-#devices .device-list .device.not-active div.desc-block button > svg > path {
-    fill: var(--text-color-light);
+#devices .device-list .device.active div.desc-block.server_pid button.action-button:hover > svg > path {
+    fill: var(--kill-button-hover-color);
 }
 
-#devices .device-list .device.not-active select {
-    color: var(--text-color-light);
+/* ── Net interface selector ── */
+
+#devices .device-list div.device select {
+    font-family: var(--font-ui);
+    font-size: 12px;
+    color: var(--text-secondary);
+    background: var(--btn-secondary-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 6px;
+    padding: 4px 8px;
+    cursor: pointer;
 }
 
-#devices .device-list .device.not-active {
-    color: var(--text-color-light);
+#devices .device-list div.device:hover select {
+    background: var(--btn-secondary-hover);
 }
 
-#devices .device-list .device.not-active a {
-    color: var(--link-color-light);
-}
-
-#devices .device-list .device.not-active a:visited {
-    color: var(--link-color_visited-light);
-}
-
-#devices .device-list div.device div.desc-block .action-button {
+/* Net interface / stream desc-blocks: remove old border treatment,
+   handled now by the shared button/link styles above */
+#devices .device-list div.desc-block.stream,
+#devices .device-list div.desc-block.server_pid,
+#devices .device-list div.desc-block.net_interface {
     border: none;
-    background-color: rgba(0, 0, 0, 0);
-    color: inherit;
+    border-radius: 0;
+    overflow: visible;
+    white-space: normal;
 }
 
+/* Update-interfaces refresh button */
 #devices .device-list div.device div.desc-block .action-button.update-interfaces-button {
     margin-right: 0;
 }
 
+/* Active cursor for clickable action buttons */
 #devices .device-list div.device div.desc-block .action-button.active {
     cursor: pointer;
-}
-
-#devices .device-list .device.active div.desc-block .action-button:hover {
-    color: var(--kill-button-hover-color);
-}
-
-#devices .device-list .device.active div.desc-block button.action-button:hover > svg > path {
-    fill: var(--kill-button-hover-color);
-}
-
-#devices .tracker-name {
-    padding: 5px 20px 5px;
-    font-size: larger;
-    font-weight: bolder;
 }

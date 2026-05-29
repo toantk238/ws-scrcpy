@@ -62,8 +62,6 @@
         --svg-button-fill: hsl(0, 0%, 100%);
         --kill-button-hover-color: hsl(342, 100%, 27%);
         --url-color: hsl(0, 0%, 60%);
-        --device-list-stripe-color: hsl(0, 0%, 16%);
-        --device-list-default-color: hsl(0, 0%, 14%);
         --button-text-color: hsl(214, 82%, 76%);
         --button-border-color: hsl(213, 5%, 39%);
         --progress-background-color: hsla(225, 100%, 50%, 0.2);

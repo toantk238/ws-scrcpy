@@ -290,6 +290,11 @@ body.list #device_list_menu {
     background: var(--btn-secondary-hover);
 }
 
+#devices .device-list div.device select:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+}
+
 /* Net interface / stream desc-blocks: remove old border treatment,
    handled now by the shared button/link styles above */
 #devices .device-list div.desc-block.stream,

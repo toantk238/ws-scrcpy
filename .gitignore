@@ -9,3 +9,5 @@
 /svc.sh
 .superpowers/
 config.yaml
+/.appium-home
+/logs/

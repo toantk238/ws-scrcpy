@@ -164,7 +164,7 @@ export class StreamClientScrcpy
             player: Util.parseString(params, 'player', true),
             udid: Util.parseString(params, 'udid', true),
             ws: Util.parseString(params, 'ws', true),
-            captureKeyboard: Util.parseBoolean(params, 'captureKeyboard', false),
+            captureKeyboard: params.has('captureKeyboard') ? Util.parseBoolean(params, 'captureKeyboard') : true,
             fitToScreen: params.has('fitToScreen') ? Util.parseBoolean(params, 'fitToScreen') : undefined,
         };
     }
